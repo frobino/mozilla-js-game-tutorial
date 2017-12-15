@@ -10,9 +10,14 @@ var y = canvas.height-30;
 var dx = 2;
 var dy = -2;
 
+// Ball properties
+var ballRadius = 10;
+
+// Sausage properties
 var image = new Image();
-// image.src = 'https://mdn.mozillademos.org/files/5397/rhino.jpg';
 image.src = 'http://files.softicons.com/download/food-drinks-icons/free-food-icons-by-daily-overview/png/64x64/sausage.png';
+image.width = 64;
+image.height = 64;
 
 /**
  * Methods down here
@@ -23,24 +28,46 @@ function draw(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // drawing the ball at position x,y
-  drawBlueBall();
-  // drawSausage();
+  // drawBlueBall();
+  drawSausage();
+
+  // check for collision
+  // ballCollisionCheck();
+  sausageCollisionCheck();
 
   // change position
   x += dx;
   y += dy;
 }
 
+function ballCollisionCheck(){
+  if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+    dx = -dx;
+  }
+  if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+    dy = -dy;
+  }
+}
+
+function sausageCollisionCheck(){
+  if(x + dx > canvas.width-image.width || x + dx < 0) {
+    dx = -dx;
+  }
+  if(y + dy > canvas.height || y + dy < 0 + image.height) {
+    dy = -dy;
+  }
+}
+
 function drawBlueBall(){
   ctx.beginPath();
-  ctx.arc(x,y,10,0,Math.PI*2);
+  ctx.arc(x,y,ballRadius,0,Math.PI*2);
   ctx.fillStyle = "#0095DD";
   ctx.fill();
   ctx.closePath();
 }
 
 function drawSausage(){
-  ctx.drawImage(image,x,y);
+  ctx.drawImage(image,x,y-70);
 }
 
 /**
