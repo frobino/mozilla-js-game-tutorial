@@ -19,6 +19,17 @@ image.src = 'http://files.softicons.com/download/food-drinks-icons/free-food-ico
 image.width = 64;
 image.height = 64;
 
+// Paddle properties
+var paddleHeight = 10;
+var paddleWidth = 75;
+var paddleX = (canvas.width-paddleWidth)/2;
+
+// Paddle movement
+var rightPressed = false;
+var leftPressed = false;
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
 /**
  * Methods down here
  */
@@ -35,9 +46,21 @@ function draw(){
   // ballCollisionCheck();
   sausageCollisionCheck();
 
-  // change position
+  drawPaddle();
+  movePaddle();
+
+  // change ball/sausage position
   x += dx;
   y += dy;
+}
+
+function movePaddle(){
+  if(rightPressed && paddleX < canvas.width-paddleWidth) {
+      paddleX += 7;
+  }
+  else if(leftPressed && paddleX > 0) {
+      paddleX -= 7;
+  }
 }
 
 function ballCollisionCheck(){
@@ -68,6 +91,32 @@ function drawBlueBall(){
 
 function drawSausage(){
   ctx.drawImage(image,x,y-70);
+}
+
+function drawPaddle(){
+  ctx.beginPath();
+  ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+  ctx.fillStyle = "#0095DD";
+  ctx.fill();
+  ctx.closePath();
+}
+
+function keyDownHandler(e) {
+    if(e.keyCode == 39) {
+        rightPressed = true;
+    }
+    else if(e.keyCode == 37) {
+        leftPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    if(e.keyCode == 39) {
+        rightPressed = false;
+    }
+    else if(e.keyCode == 37) {
+        leftPressed = false;
+    }
 }
 
 /**
