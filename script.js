@@ -15,9 +15,15 @@ var ballRadius = 10;
 
 // Sausage properties
 var image = new Image();
-image.src = 'http://files.softicons.com/download/food-drinks-icons/free-food-icons-by-daily-overview/png/64x64/sausage.png';
+image.src = './img/sausage.png';
 image.width = 64;
 image.height = 64;
+
+// Bread properties
+var breadImage = new Image();
+breadImage.src = './img/bread.png';
+breadImage.width = 64;
+breadImage.height = 20;
 
 // Paddle properties
 var paddleHeight = 10;
@@ -29,6 +35,9 @@ var rightPressed = false;
 var leftPressed = false;
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+
+// Score
+var score = 0;
 
 /**
  * Methods down here
@@ -48,6 +57,8 @@ function draw(){
 
   drawPaddle();
   movePaddle();
+
+  drawBread();
 
   // change ball/sausage position
   x += dx;
@@ -89,9 +100,10 @@ function sausageCollisionCheck(){
   } else if(y + dy > canvas.height) {
     if(x > paddleX - 5 && x < paddleX + paddleWidth + 5) {
         dy = -dy;
+        score++;
     }
     else {
-        alert("KORV OVER");
+        alert("KORV OVER\nYour score is: " + score.toString());
         document.location.reload();
     }
   }
@@ -116,6 +128,10 @@ function drawPaddle(){
   ctx.fillStyle = "#0095DD";
   ctx.fill();
   ctx.closePath();
+}
+
+function drawBread(){
+  ctx.drawImage(breadImage,paddleX,canvas.height-breadImage.height);
 }
 
 function keyDownHandler(e) {
