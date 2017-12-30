@@ -10,3 +10,14 @@ function Hero(game, x ,y) {
 // inherit from Phaser.Sprite
 Hero.prototype = Object.create(Phaser.Sprite.prototype);
 Hero.prototype.constructor = Hero;
+
+/**
+ * add more methods to the class.
+ * NOTE: more public/private methods must be added to this
+ * subclass AFTER the inherit lines
+ */
+
+// public custom method
+Hero.prototype.move = function(direction) {
+  this.x += direction * 2.5; // 2.5 pixels each frame
+};

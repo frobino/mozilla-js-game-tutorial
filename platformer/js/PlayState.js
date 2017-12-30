@@ -1,22 +1,39 @@
 /*
- * Phaser pahses:
- * - Init
- * - Preload
- *   cache/preload all images/sprites which will instantiated
- * - Create
- *   instantiate the preloaded images/sprites
- * - Update <-|
- * - Render <-|
- * - Shutdown
+ * Phaser phases:
+ * 1] Init
+ * 2] Preload
+ *    cache/preload all images/sprites which will instantiated
+ * 3] Create
+ *    instantiate the preloaded images/sprites
+ * 4] Update <-|
+ * 5] Render <-|
+ * 6] Shutdown
  */
 
  /**
   * PlayState object implementing Phaser phases
   */
-//PlayState = {};
 function PlayState() {}
 
-// Preload
+// 1] Init
+PlayState.prototype.init = function () {
+  /**
+   * Force the rendering system to round the position values when drawing images
+   */
+  this.game.renderer.renderSession.roundPixels = true;
+
+  /**
+   * Phaser let us detect a key status (and listen to events) via instances of
+   * Phaser.Key, each instance being associated to a specific key.
+   * We can easily create Phaser.Key instances with the addKeys method. 
+   */
+  this.keys = this.game.input.keyboard.addKeys({
+    left: Phaser.KeyCode.LEFT,
+    right: Phaser.KeyCode.RIGHT
+  });
+};
+
+// 2] Preload
 PlayState.prototype.preload = function() {
   // preload background
   this.game.load.image('background', 'images/background.png');
@@ -33,7 +50,7 @@ PlayState.prototype.preload = function() {
   this.game.load.image('hero', 'images/hero_stopped.png');
 }
 
-// Create
+// 3] Create
 PlayState.prototype.create = function() {
   this.game.add.image(0, 0, 'background');
   // load the level cached durign preload, including platforms, enemies, heroes, ...
@@ -63,4 +80,18 @@ PlayState.prototype._spawnCharacters = function (data) {
     // spawn hero
     this.hero = new Hero(this.game, data.hero.x, data.hero.y);
     this.game.add.existing(this.hero);
+};
+
+// 4] Update
+PlayState.prototype.update = function () {
+  this._handleInput();
+};
+
+// _handleInput helper / private method
+PlayState.prototype._handleInput = function () {
+  if (this.keys.left.isDown) {
+    this.hero.move(-1);
+  } else if (this.keys.right.isDown) {
+    this.hero.move(1);
+  }
 };
