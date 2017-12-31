@@ -25,7 +25,7 @@ PlayState.prototype.init = function () {
   /**
    * Phaser let us detect a key status (and listen to events) via instances of
    * Phaser.Key, each instance being associated to a specific key.
-   * We can easily create Phaser.Key instances with the addKeys method. 
+   * We can easily create Phaser.Key instances with the addKeys method.
    */
   this.keys = this.game.input.keyboard.addKeys({
     left: Phaser.KeyCode.LEFT,
@@ -93,5 +93,7 @@ PlayState.prototype._handleInput = function () {
     this.hero.move(-1);
   } else if (this.keys.right.isDown) {
     this.hero.move(1);
+  } else {
+    this.hero.move(0);
   }
 };
