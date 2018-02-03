@@ -62,17 +62,29 @@ PlayState.prototype._loadlevel = function(data) {
   // DEBUG
   // console.log(data);
 
+  // store all platforms in a Phaser.Group
+  this.platforms = this.game.add.group();
+
   // spawn all platforms
   data.platforms.forEach(this._spawnPlatform, this);
 
   //...
   // spawn hero and enemies
   this._spawnCharacters({hero: data.hero});
+
+  // enable gravity using Phaser physics
+  const GRAVITY = 1200;
+  this.game.physics.arcade.gravity.y = GRAVITY;
 }
 
 // _spawnPlatform helper / private method
 PlayState.prototype._spawnPlatform = function(platform){
-  this.game.add.sprite(platform.x, platform.y, platform.image);
+  let sprite = this.platforms.create(platform.x, platform.y, platform.image);
+  this.game.physics.enable(sprite);
+  // disable gravity for platforms
+  sprite.body.allowGravity = false;
+  // force the platform under the Hero to be immobile
+  sprite.body.immovable = true;
 }
 
 // _spawnCharacters helper / private method
@@ -84,6 +96,7 @@ PlayState.prototype._spawnCharacters = function (data) {
 
 // 4] Update
 PlayState.prototype.update = function () {
+  this._handleCollisions();
   this._handleInput();
 };
 
@@ -96,4 +109,8 @@ PlayState.prototype._handleInput = function () {
   } else {
     this.hero.move(0);
   }
+};
+
+PlayState.prototype._handleCollisions = function () {
+    this.game.physics.arcade.collide(this.hero, this.platforms);
 };
