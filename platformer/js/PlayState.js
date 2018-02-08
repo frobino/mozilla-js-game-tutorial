@@ -89,8 +89,13 @@ PlayState.prototype._spawnPlatform = function(platform){
 
 // _spawnCharacters helper / private method
 PlayState.prototype._spawnCharacters = function (data) {
-    // spawn hero
-    this.hero = new Hero(this.game, data.hero.x, data.hero.y);
+    /*
+     * spawn hero: choose between
+     * -- Hero2 - class ES6 - enables autocomplete
+     * -- Hero  - class ES5
+     */
+    this.hero = new Hero2(this.game, data.hero.x, data.hero.y);
+    // this.hero = new Hero(this.game, data.hero.x, data.hero.y);
     this.game.add.existing(this.hero);
 };
 
