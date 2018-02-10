@@ -11,7 +11,7 @@
  */
 
  /**
-  * PlayState object implementing Phaser phases
+  * PlayState class implementing Phaser phases
   */
 function PlayState() {}
 
