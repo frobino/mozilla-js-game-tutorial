@@ -39,5 +39,7 @@ class Hero2 extends Phaser.Sprite {
         if (canJump) {
             this.body.velocity.y = -JUMP_SPEED;
         }
+
+        return canJump;
     };
 }

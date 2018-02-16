@@ -39,7 +39,10 @@ class PlayState2 extends Phaser.State {
          */
         this.keys.up.onDown.add(
             function () {
-                this.hero.jump();
+                let didJump = this.hero.jump();
+                if (didJump) {
+                    this.sfx.jump.play();
+                }
             },
             this
         );
@@ -60,10 +63,17 @@ class PlayState2 extends Phaser.State {
         this.game.load.image('grass:1x1', 'images/grass_1x1.png');
         // preload image hero
         this.game.load.image('hero', 'images/hero_stopped.png');
+        // preload audio asset
+        this.game.load.audio('sfx:jump', 'audio/jump.wav');
     }
 
     // 3] Create (overrridden)
     create() {
+        // create sound entities
+        this.sfx = {
+            jump: this.game.add.audio('sfx:jump')
+        };
+
         this.game.add.image(0, 0, 'background');
         // load the level cached durign preload, including platforms, enemies, heroes, ...
         this._loadlevel(this.game.cache.getJSON('level:1'));
