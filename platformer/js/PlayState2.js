@@ -29,8 +29,20 @@ class PlayState2 extends Phaser.State {
          */
         this.keys = this.game.input.keyboard.addKeys({
             left: Phaser.KeyCode.LEFT,
-            right: Phaser.KeyCode.RIGHT
+            right: Phaser.KeyCode.RIGHT,
+            up: Phaser.KeyCode.UP
         });
+
+        /**
+         * Listener for up key (different approach than _handleInput)
+         * NOTE: autocomplete not working for keys.up/left/right
+         */
+        this.keys.up.onDown.add(
+            function () {
+                this.hero.jump();
+            },
+            this
+        );
     }
 
     // 2] Preload (overridden)

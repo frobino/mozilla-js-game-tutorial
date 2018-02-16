@@ -30,4 +30,14 @@ class Hero2 extends Phaser.Sprite {
         const SPEED = 200;
         this.body.velocity.x = direction * SPEED;
     }
+
+    // public custom method
+    jump() {
+        const JUMP_SPEED = 600;
+        let canJump = this.body.touching.down;
+
+        if (canJump) {
+            this.body.velocity.y = -JUMP_SPEED;
+        }
+    };
 }
