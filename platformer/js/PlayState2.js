@@ -65,6 +65,8 @@ class PlayState2 extends Phaser.State {
         this.game.load.image('hero', 'images/hero_stopped.png');
         // preload audio asset
         this.game.load.audio('sfx:jump', 'audio/jump.wav');
+        // preload images spritesheets (i.e. animated)
+        this.game.load.spritesheet('coin', 'images/coin_animated.png', 22, 22);
     }
 
     // 3] Create (overrridden)
@@ -86,11 +88,14 @@ class PlayState2 extends Phaser.State {
 
         // store all platforms in a Phaser.Group
         this.platforms = this.game.add.group();
-
         // spawn all platforms
         data.platforms.forEach(this._spawnPlatform, this);
 
-        //...
+        // store all coins in a Phaser.Group
+        this.coins = this.game.add.group();
+        // spawn all coins
+        data.coins.forEach(this._spawnCoin, this);
+
         // spawn hero and enemies
         this._spawnCharacters({ hero: data.hero });
 
@@ -107,6 +112,21 @@ class PlayState2 extends Phaser.State {
         sprite.body.allowGravity = false;
         // force the platform under the Hero to be immobile
         sprite.body.immovable = true;
+    }
+
+    // _spawnCoin helper / private method
+    _spawnCoin(coin) {
+        // NOTE: the following line would be enough. However, by creating a "new Phaser.Sprite()",
+        // we enable autocomplete instead of using "any" objects. This can be done ONLY when we
+        // are sure about the returned "any". In case of "coins.create", by documentation we know what it returns.
+        //
+        // let sprite = this.coins.create(coin.x, coin.y, 'coin');
+        let sprite = new Phaser.Sprite();
+        sprite = this.coins.create(coin.x, coin.y, 'coin');
+
+        sprite.anchor.set(0.5,0.5);
+        sprite.animations.add('rotate', [0,1,2,1], 6, true);
+        sprite.animations.play('rotate');
     }
 
     // _spawnCharacters helper / private method
