@@ -65,6 +65,7 @@ class PlayState2 extends Phaser.State {
         this.game.load.image('hero', 'images/hero_stopped.png');
         // preload audio asset
         this.game.load.audio('sfx:jump', 'audio/jump.wav');
+        this.game.load.audio('sfx:coin', 'audio/coin.wav');
         // preload images spritesheets (i.e. animated)
         this.game.load.spritesheet('coin', 'images/coin_animated.png', 22, 22);
     }
@@ -73,7 +74,8 @@ class PlayState2 extends Phaser.State {
     create() {
         // create sound entities
         this.sfx = {
-            jump: this.game.add.audio('sfx:jump')
+            jump: this.game.add.audio('sfx:jump'),
+            coin: this.game.add.audio('sfx:coin')
         };
 
         this.game.add.image(0, 0, 'background');
@@ -127,6 +129,11 @@ class PlayState2 extends Phaser.State {
         sprite.anchor.set(0.5,0.5);
         sprite.animations.add('rotate', [0,1,2,1], 6, true);
         sprite.animations.play('rotate');
+
+        // enable physics of the engine on the sprite (coin),
+        // but remove the gravity.
+        this.game.physics.enable(sprite);
+        sprite.body.allowGravity = false;
     }
 
     // _spawnCharacters helper / private method
@@ -161,6 +168,14 @@ class PlayState2 extends Phaser.State {
     // _handleCollision helper / private method
     _handleCollisions() {
         this.game.physics.arcade.collide(this.hero, this.platforms);
+        this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
     };
+
+    _onHeroVsCoin(hero, coin) {
+        // coin and hero expected to be Phaser.Sprite objects.
+        // TODO: check if it is possible in js to specify types.
+        coin.kill();
+        this.sfx.coin.play();
+    }
 
 }
