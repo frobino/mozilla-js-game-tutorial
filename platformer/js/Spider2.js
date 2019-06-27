@@ -31,4 +31,16 @@ class Spider2 extends Phaser.Sprite {
         this.body.velocity.x = this.fSpeed;
 
     }
+
+    // override update method. This method is automatically called by the engine between
+    // preUpdate and postUpdate phases to update the object properties.
+    update() {
+        // check against walls and reverse direction if necessary
+        if (this.body.touching.right || this.body.blocked.right) {
+            this.body.velocity.x = -this.fSpeed; // turn left
+        }
+        else if (this.body.touching.left || this.body.blocked.left) {
+            this.body.velocity.x = this.fSpeed; // turn right
+        }
+    }
 }
