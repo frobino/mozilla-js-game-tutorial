@@ -68,6 +68,7 @@ class PlayState2 extends Phaser.State {
         this.game.load.audio('sfx:coin', 'audio/coin.wav');
         // preload images spritesheets (i.e. animated)
         this.game.load.spritesheet('coin', 'images/coin_animated.png', 22, 22);
+        this.game.load.spritesheet('spider', 'images/spider.png', 42, 32);
     }
 
     // 3] Create (overrridden)
@@ -98,8 +99,9 @@ class PlayState2 extends Phaser.State {
         // spawn all coins
         data.coins.forEach(this._spawnCoin, this);
 
+        this.spiders = this.game.add.group();
         // spawn hero and enemies
-        this._spawnCharacters({ hero: data.hero });
+        this._spawnCharacters({ hero: data.hero, spiders: data.spiders });
 
         // enable gravity using Phaser physics
         const GRAVITY = 1200;
@@ -146,6 +148,12 @@ class PlayState2 extends Phaser.State {
         this.hero = new Hero2(this.game, data.hero.x, data.hero.y);
         // this.hero = new Hero(this.game, data.hero.x, data.hero.y);
         this.game.add.existing(this.hero);
+
+        // spawn spiders
+        data.spiders.forEach( function (spider) {
+            let sprite = new Spider2(this.game, spider.x, spider.y);
+            this.spiders.add(sprite);
+        }, this);
     };
 
     // 4] Update (overridden)
