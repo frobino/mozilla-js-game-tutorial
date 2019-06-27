@@ -61,6 +61,8 @@ class PlayState2 extends Phaser.State {
         this.game.load.image('grass:4x1', 'images/grass_4x1.png');
         this.game.load.image('grass:2x1', 'images/grass_2x1.png');
         this.game.load.image('grass:1x1', 'images/grass_1x1.png');
+        // preload image invisible-wall, to make spiders not fall from platforms
+        this.game.load.image('invisible-wall', 'images/invisible_wall.png');
         // preload image hero
         this.game.load.image('hero', 'images/hero_stopped.png');
         // preload audio asset
@@ -91,15 +93,18 @@ class PlayState2 extends Phaser.State {
 
         // store all platforms in a Phaser.Group
         this.platforms = this.game.add.group();
+        // store all coins in a Phaser.Group
+        this.coins = this.game.add.group();
+        this.spiders = this.game.add.group();
+        this.enemyWalls = this.game.add.group();
+        this.enemyWalls.visible = false;
+
         // spawn all platforms
         data.platforms.forEach(this._spawnPlatform, this);
 
-        // store all coins in a Phaser.Group
-        this.coins = this.game.add.group();
         // spawn all coins
         data.coins.forEach(this._spawnCoin, this);
 
-        this.spiders = this.game.add.group();
         // spawn hero and enemies
         this._spawnCharacters({ hero: data.hero, spiders: data.spiders });
 
@@ -110,12 +115,16 @@ class PlayState2 extends Phaser.State {
 
     // _spawnPlatform helper / private method
     _spawnPlatform(platform) {
-        let sprite = this.platforms.create(platform.x, platform.y, platform.image);
+        let sprite = new Phaser.Sprite();
+        sprite = this.platforms.create(platform.x, platform.y, platform.image);
         this.game.physics.enable(sprite);
         // disable gravity for platforms
         sprite.body.allowGravity = false;
         // force the platform under the Hero to be immobile
         sprite.body.immovable = true;
+        // create 2 "invisible walls" per spawned platform
+        this._spawnEnemyWall(platform.x, platform.y, 'left');
+        this._spawnEnemyWall(platform.x + sprite.width, platform.y, 'right');
     }
 
     // _spawnCoin helper / private method
@@ -156,6 +165,20 @@ class PlayState2 extends Phaser.State {
         }, this);
     };
 
+    // _spawnEnemyWall helper / private method
+    // Spawns invisible walls to contain enemies on platforms and not make them fall
+    _spawnEnemyWall(x, y, side){
+        let sprite = new Phaser.Sprite();
+        sprite = this.enemyWalls.create(x, y, 'invisible-wall');
+        // anchor and y displacement
+        sprite.anchor.set(side === 'left' ? 1 : 0, 1);
+
+        // physic properties
+        this.game.physics.enable(sprite);
+        sprite.body.immovable = true;
+        sprite.body.allowGravity = false;
+    }
+
     // 4] Update (overridden)
     update() {
         this._handleCollisions();
@@ -175,7 +198,13 @@ class PlayState2 extends Phaser.State {
 
     // _handleCollision helper / private method
     _handleCollisions() {
+        // make the hero collide (i.e. block) against platforms
         this.game.physics.arcade.collide(this.hero, this.platforms);
+        // make the spiders collide (i.e. block) against platforms
+        this.game.physics.arcade.collide(this.spiders, this.platforms);
+        // make the spiders collide (i.e. block) against invisible walls
+        this.game.physics.arcade.collide(this.spiders, this.enemyWalls);
+        // handle what happens when hero and coin sprites overlap, by using a custom method
         this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
     };
 
