@@ -68,6 +68,7 @@ class PlayState2 extends Phaser.State {
         // preload audio asset
         this.game.load.audio('sfx:jump', 'audio/jump.wav');
         this.game.load.audio('sfx:coin', 'audio/coin.wav');
+        this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
         // preload images spritesheets (i.e. animated)
         this.game.load.spritesheet('coin', 'images/coin_animated.png', 22, 22);
         this.game.load.spritesheet('spider', 'images/spider.png', 42, 32);
@@ -78,7 +79,8 @@ class PlayState2 extends Phaser.State {
         // create sound entities
         this.sfx = {
             jump: this.game.add.audio('sfx:jump'),
-            coin: this.game.add.audio('sfx:coin')
+            coin: this.game.add.audio('sfx:coin'),
+            stomp: this.game.add.audio('sfx:stomp')
         };
 
         this.game.add.image(0, 0, 'background');
@@ -206,6 +208,8 @@ class PlayState2 extends Phaser.State {
         this.game.physics.arcade.collide(this.spiders, this.enemyWalls);
         // handle what happens when hero and coin sprites overlap, by using a custom method
         this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
+        // handle what happens when hero and enemy overlap (i.e. hero dies)
+        this.game.physics.arcade.overlap(this.hero, this.spiders, this._onHeroVsEnemy, null, this);
     };
 
     _onHeroVsCoin(hero, coin) {
@@ -213,6 +217,25 @@ class PlayState2 extends Phaser.State {
         // TODO: check if it is possible in js to specify types.
         coin.kill();
         this.sfx.coin.play();
-    }
+    };
+
+    _onHeroVsEnemy(hero, enemy){
+        // hero and enemy expected to be Phaser.Sprite objects.
+        // TODO: try to add autocomplete for 'body.velocity'
+        let heroSprite = new Hero2(this.game);
+        let enemySprite = new Spider2(this.game);
+        heroSprite = hero;
+        enemySprite = enemy;
+
+        if (heroSprite.body.velocity.y > 0) {
+            // kill enemies when hero is falling
+            enemySprite.kill();
+            this.sfx.stomp.play();
+        } else {
+            // game over -> restart the game
+            this.sfx.stomp.play();
+            this.game.state.restart();
+        }
+    };
 
 }
