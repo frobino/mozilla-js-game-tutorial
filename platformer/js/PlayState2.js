@@ -230,7 +230,7 @@ class PlayState2 extends Phaser.State {
         if (heroSprite.body.velocity.y > 0) {
             // kill enemies when hero is falling
             heroSprite.bounce();
-            enemySprite.kill();
+            enemySprite.die();
             this.sfx.stomp.play();
         } else {
             // game over -> restart the game

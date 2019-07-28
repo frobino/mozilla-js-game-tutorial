@@ -43,4 +43,13 @@ class Spider2 extends Phaser.Sprite {
             this.body.velocity.x = this.fSpeed; // turn right
         }
     }
+
+    die() {
+        // disabling the body, so the spider stops and isn't taken into account for collisions
+        this.body.enable = false;
+
+        this.animations.play('die').onComplete.addOnce(function () {
+            this.kill();
+        }, this);
+    }
 }
