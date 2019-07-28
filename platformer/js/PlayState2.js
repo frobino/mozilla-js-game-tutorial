@@ -46,6 +46,9 @@ class PlayState2 extends Phaser.State {
             },
             this
         );
+
+        // private field used to store how many coins have been collected by Hero
+        this.coinPickupCount = 0;
     }
 
     // 2] Preload (overridden)
@@ -65,6 +68,9 @@ class PlayState2 extends Phaser.State {
         this.game.load.image('invisible-wall', 'images/invisible_wall.png');
         // preload image hero
         this.game.load.image('hero', 'images/hero_stopped.png');
+        // preload image coin counter + numbers
+        this.game.load.image('icon:coin', 'images/coin_icon.png');
+        this.game.load.image('font:numbers', 'images/numbers.png');
         // preload audio asset
         this.game.load.audio('sfx:jump', 'audio/jump.wav');
         this.game.load.audio('sfx:coin', 'audio/coin.wav');
@@ -86,6 +92,8 @@ class PlayState2 extends Phaser.State {
         this.game.add.image(0, 0, 'background');
         // load the level cached durign preload, including platforms, enemies, heroes, ...
         this._loadlevel(this.game.cache.getJSON('level:1'));
+        // create HUD for coins after all the rest, so it is rendered on the top
+        this._createHud();
     }
 
     // _loadlevel helper / private method
@@ -185,6 +193,8 @@ class PlayState2 extends Phaser.State {
     update() {
         this._handleCollisions();
         this._handleInput();
+        // update HUD + coincounter
+        this.coinFont.text = `x${this.coinPickupCount}`;
     }
 
     // _handleInput helper / private method
@@ -217,6 +227,7 @@ class PlayState2 extends Phaser.State {
         // TODO: check if it is possible in js to specify types.
         coin.kill();
         this.sfx.coin.play();
+        this.coinPickupCount++;
     };
 
     _onHeroVsEnemy(hero, enemy){
@@ -238,5 +249,24 @@ class PlayState2 extends Phaser.State {
             this.game.state.restart();
         }
     };
+
+    _createHud(){
+        // create a font to count coins based on png
+        const NUMBERS_STR = '0123456789X ';
+        this.coinFont = this.game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
+
+        // create a HUD to indicate how many coins has been picked
+        let coinIcon = this.game.make.image(0, 0, 'icon:coin');
+        this.hud = this.game.add.group();
+        this.hud.add(coinIcon);
+        this.hud.position.set(10, 10);
+
+        // create a coin counter based on coinFont and put it beside the HUD to count coins
+        let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width,
+            coinIcon.height /2, this.coinFont);
+        coinScoreImg.anchor.set(0, 0.5);
+
+        this.hud.add(coinScoreImg);
+    }
 
 }
