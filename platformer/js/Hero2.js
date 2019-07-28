@@ -42,4 +42,10 @@ class Hero2 extends Phaser.Sprite {
 
         return canJump;
     };
+
+    // public custom method
+    bounce() {
+        const BOUNCE_SPEED = 200;
+        this.body.velocity.y = -BOUNCE_SPEED;
+    };
 }
