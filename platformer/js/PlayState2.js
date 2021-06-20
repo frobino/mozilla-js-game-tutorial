@@ -83,6 +83,8 @@ class PlayState2 extends Phaser.State {
         this.game.load.spritesheet('spider', 'images/spider.png', 42, 32);
         this.game.load.spritesheet('hero', 'images/hero.png', 36, 42);
         this.game.load.spritesheet('door', 'images/door.png', 42, 66);
+        // this is the key that shows on the top left of the screen once key is picked by hero
+        this.game.load.spritesheet('icon:key', 'images/key_icon.png', 34, 30);
     }
 
     // 3] Create (overrridden)
@@ -236,8 +238,9 @@ class PlayState2 extends Phaser.State {
     update() {
         this._handleCollisions();
         this._handleInput();
-        // update HUD + coincounter
+        // update HUD + coincounter + key icoon
         this.coinFont.text = `x${this.coinPickupCount}`;
+        this.keyIcon.frame = this.hasKey ? 1 : 0;
     }
 
     // _handleInput helper / private method
@@ -314,22 +317,34 @@ class PlayState2 extends Phaser.State {
         }
     };
 
+    // helper to create HUD (icons) on top left of screen
     _createHud(){
         // create a font to count coins based on png
         const NUMBERS_STR = '0123456789X ';
         this.coinFont = this.game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
 
-        // create a HUD to indicate how many coins has been picked
-        let coinIcon = this.game.make.image(0, 0, 'icon:coin');
+        // create a key icon to indicate if hero has picked key
+        // Note that we do not do a local variable (like coin icon),
+        // but instead we create a field (like coin font) because
+        // exactly as coin font, key icon will be accessed outside this function (see update).
+        this.keyIcon = this.game.make.image(0, 19, 'icon:key');
+        this.keyIcon.anchor.set(0, 0.5);
+
+        // create a coin icon.
+        // Note that the "this.keyIcon.width + 7" is used to make space
+        // for the key icon beside the coin icon
+        let coinIcon = this.game.make.image(this.keyIcon.width + 7, 0, 'icon:coin');
+
+        // create a HUD to indicate how many coins has been picked and if the hero has a key
         this.hud = this.game.add.group();
         this.hud.add(coinIcon);
+        this.hud.add(this.keyIcon);
         this.hud.position.set(10, 10);
 
         // create a coin counter based on coinFont and put it beside the HUD to count coins
         let coinScoreImg = this.game.make.image(coinIcon.x + coinIcon.width,
             coinIcon.height /2, this.coinFont);
         coinScoreImg.anchor.set(0, 0.5);
-
         this.hud.add(coinScoreImg);
     }
 
