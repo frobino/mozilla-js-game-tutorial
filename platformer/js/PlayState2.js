@@ -49,6 +49,8 @@ class PlayState2 extends Phaser.State {
 
         // private field used to store how many coins have been collected by Hero
         this.coinPickupCount = 0;
+        // private field used to understand if Hero has picked the key
+        this.hasKey = false;
     }
 
     // 2] Preload (overridden)
@@ -69,14 +71,18 @@ class PlayState2 extends Phaser.State {
         // preload image coin counter + numbers
         this.game.load.image('icon:coin', 'images/coin_icon.png');
         this.game.load.image('font:numbers', 'images/numbers.png');
+        this.game.load.image('key', 'images/key.png');
         // preload audio asset
         this.game.load.audio('sfx:jump', 'audio/jump.wav');
         this.game.load.audio('sfx:coin', 'audio/coin.wav');
         this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
+        this.game.load.audio('sfx:key', 'audio/key.wav');
+        this.game.load.audio('sfx:door', 'audio/door.wav');
         // preload images spritesheets (i.e. animated)
         this.game.load.spritesheet('coin', 'images/coin_animated.png', 22, 22);
         this.game.load.spritesheet('spider', 'images/spider.png', 42, 32);
         this.game.load.spritesheet('hero', 'images/hero.png', 36, 42);
+        this.game.load.spritesheet('door', 'images/door.png', 42, 66);
     }
 
     // 3] Create (overrridden)
@@ -85,7 +91,9 @@ class PlayState2 extends Phaser.State {
         this.sfx = {
             jump: this.game.add.audio('sfx:jump'),
             coin: this.game.add.audio('sfx:coin'),
-            stomp: this.game.add.audio('sfx:stomp')
+            stomp: this.game.add.audio('sfx:stomp'),
+            key: this.game.add.audio('sfx:key'),
+            door: this.game.add.audio('sfx:door')
         };
 
         this.game.add.image(0, 0, 'background');
@@ -97,8 +105,10 @@ class PlayState2 extends Phaser.State {
 
     // _loadlevel helper / private method
     _loadlevel(data) {
-        // DEBUG
-        // console.log(data);
+        // group of objects that need to appear BELOW all the other sprites.
+        // Since this group is created before any other,
+        // the objects it contains will appear below the rest.
+        this.bgDecoration = this.game.add.group();
 
         // store all platforms in a Phaser.Group
         this.platforms = this.game.add.group();
@@ -113,6 +123,10 @@ class PlayState2 extends Phaser.State {
 
         // spawn all coins
         data.coins.forEach(this._spawnCoin, this);
+
+        // spawn the door and the key
+        this._spawnDoor(data.door.x, data.door.y);
+        this._spawnKey(data.key.x, data.key.y);
 
         // spawn hero and enemies
         this._spawnCharacters({ hero: data.hero, spiders: data.spiders });
@@ -188,6 +202,26 @@ class PlayState2 extends Phaser.State {
         sprite.body.allowGravity = false;
     }
 
+    // Spawns the door
+    _spawnDoor(x, y) {
+        // add to bgDecoration group so that door appear behind enemies and other sprites
+        this.door = this.bgDecoration.create(x, y, 'door');
+        this.door.anchor.setTo(0.5, 1);
+        // enable physics to identify collision between Hero and door
+        this.game.physics.enable(this.door);
+        this.door.body.allowGravity = false;
+    };
+
+    // add to bgDecoration group so that door appear behind enemies and other sprites
+    _spawnKey(x, y) {
+        // add to bgDecoration group so that door appear behind enemies and other sprites
+        this.key = this.bgDecoration.create(x, y, 'key');
+        this.key.anchor.set(0.5, 0.5);
+        // enable physics to identify collision between Hero and key
+        this.game.physics.enable(this.key);
+        this.key.body.allowGravity = false;
+    };
+
     // 4] Update (overridden)
     update() {
         this._handleCollisions();
@@ -219,6 +253,15 @@ class PlayState2 extends Phaser.State {
         this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
         // handle what happens when hero and enemy overlap (i.e. hero dies)
         this.game.physics.arcade.overlap(this.hero, this.spiders, this._onHeroVsEnemy, null, this);
+        // handle what happens when hero and key overlap
+        this.game.physics.arcade.overlap(this.hero, this.key, this._onHeroVsKey, null, this)
+        // handle what happens when hero and door overlap.
+        // Note the extra processCallback: only if this returns true (i.e. the hero has the key)
+        // then the handler is executed.
+        let processCallback = function (hero, door) {
+            return this.hasKey && hero.body.touching.down;
+        };
+        this.game.physics.arcade.overlap(this.hero, this.door, this._onHeroVsDoor, processCallback, this);
     };
 
     _onHeroVsCoin(hero, coin) {
@@ -227,6 +270,18 @@ class PlayState2 extends Phaser.State {
         coin.kill();
         this.sfx.coin.play();
         this.coinPickupCount++;
+    };
+
+    _onHeroVsKey(hero, key) {
+        this.sfx.key.play();
+        key.kill();
+        this.hasKey = true;
+    };
+
+    _onHeroVsDoor(hero, door) {
+        this.sfx.door.play();
+        this.game.state.restart();
+        // TODO: go to the next level instead
     };
 
     _onHeroVsEnemy(hero, enemy){
