@@ -220,6 +220,16 @@ class PlayState2 extends Phaser.State {
         // enable physics to identify collision between Hero and key
         this.game.physics.enable(this.key);
         this.key.body.allowGravity = false;
+
+        // add a small 'up & down' animation via a Phaser.Tween
+        // This is a way to add simple animation without using a full
+        // sprited animation as we have for hero, spiders, etc.
+        this.key.y -= 3;
+        this.game.add.tween(this.key)
+            .to({y: this.key.y + 6}, 800, Phaser.Easing.Sinusoidal.InOut)
+            .yoyo(true)
+            .loop()
+            .start();
     };
 
     // 4] Update (overridden)
