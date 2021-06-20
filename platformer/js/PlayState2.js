@@ -16,7 +16,11 @@
 class PlayState2 extends Phaser.State {
 
     // 1] Init (overrridden)
-    init() {
+    init(data) {
+        // LEVEL_COUNT constant is there to restart the game from the first level
+        const LEVEL_COUNT = 2;
+        this.level = (data.level || 0) % LEVEL_COUNT;
+
         /**
          * Force the rendering system to round the position values when drawing images
          */
@@ -57,7 +61,8 @@ class PlayState2 extends Phaser.State {
     preload() {
         // preload background
         this.game.load.image('background', 'images/background.png');
-        // preload level structure/positioning of images/sprites
+        // preload levels structure/positioning of images/sprites
+        this.game.load.json('level:0', 'data/level00.json');
         this.game.load.json('level:1', 'data/level01.json');
         // preload images sprites
         this.game.load.image('ground', 'images/ground.png');
@@ -100,13 +105,13 @@ class PlayState2 extends Phaser.State {
 
         this.game.add.image(0, 0, 'background');
         // load the level cached durign preload, including platforms, enemies, heroes, ...
-        this._loadlevel(this.game.cache.getJSON('level:1'));
+        this._loadLevel(this.game.cache.getJSON(`level:${this.level}`));
         // create HUD for coins after all the rest, so it is rendered on the top
         this._createHud();
     }
 
     // _loadlevel helper / private method
-    _loadlevel(data) {
+    _loadLevel(data) {
         // group of objects that need to appear BELOW all the other sprites.
         // Since this group is created before any other,
         // the objects it contains will appear below the rest.
@@ -293,8 +298,8 @@ class PlayState2 extends Phaser.State {
 
     _onHeroVsDoor(hero, door) {
         this.sfx.door.play();
-        this.game.state.restart();
-        // TODO: go to the next level instead
+        // go to the next level instead
+        this.game.state.restart(true, false, { level: this.level + 1 });
     };
 
     _onHeroVsEnemy(hero, enemy){
@@ -313,7 +318,7 @@ class PlayState2 extends Phaser.State {
         } else {
             // game over -> restart the game
             this.sfx.stomp.play();
-            this.game.state.restart();
+            this.game.state.restart(true, false, {level: this.level});
         }
     };
 

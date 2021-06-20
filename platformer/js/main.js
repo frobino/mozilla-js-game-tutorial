@@ -11,5 +11,5 @@ window.onload = function() {
   // let playState = new PlayState();
   let playState = new PlayState2();
   game.state.add('play', playState);
-  game.state.start('play');
+  game.state.start('play', true, false, {level: 0});
 }
