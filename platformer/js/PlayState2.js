@@ -66,8 +66,6 @@ class PlayState2 extends Phaser.State {
         this.game.load.image('grass:1x1', 'images/grass_1x1.png');
         // preload image invisible-wall, to make spiders not fall from platforms
         this.game.load.image('invisible-wall', 'images/invisible_wall.png');
-        // preload image hero
-        this.game.load.image('hero', 'images/hero_stopped.png');
         // preload image coin counter + numbers
         this.game.load.image('icon:coin', 'images/coin_icon.png');
         this.game.load.image('font:numbers', 'images/numbers.png');
@@ -78,6 +76,7 @@ class PlayState2 extends Phaser.State {
         // preload images spritesheets (i.e. animated)
         this.game.load.spritesheet('coin', 'images/coin_animated.png', 22, 22);
         this.game.load.spritesheet('spider', 'images/spider.png', 42, 32);
+        this.game.load.spritesheet('hero', 'images/hero.png', 36, 42);
     }
 
     // 3] Create (overrridden)
